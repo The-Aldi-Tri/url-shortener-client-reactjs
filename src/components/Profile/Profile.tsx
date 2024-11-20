@@ -1,4 +1,5 @@
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
+import { AxiosError } from 'axios';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -16,12 +17,21 @@ export const Profile: React.FC = () => {
   const handleDelete = async () => {
     try {
       await axiosInstance.delete('/users');
+
       toast.success('User deleted successfully.');
+
       clearToken();
+
       navigate('/auth');
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error('Error deleting user. Please try again later.');
+      if (error instanceof AxiosError) {
+        toast.warning(
+          error.response?.data.message ??
+            'A server error occurred. Please try again later.',
+        );
+      } else {
+        toast.error('An unexpected error occurred.');
+      }
     }
   };
 

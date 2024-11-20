@@ -21,7 +21,6 @@ import axiosInstance from '../../utils/axiosInstance';
 
 export const ProfileChangePasswordDialog: React.FC = () => {
   const [openDialog, setOpenDialog] = React.useState(false);
-
   const [showPassword, setShowPassword] = React.useState(false);
 
   const chgPwdFormik = useFormik({
@@ -35,18 +34,24 @@ export const ProfileChangePasswordDialog: React.FC = () => {
 
       try {
         await axiosInstance.post('/auth/change-password', values);
+
         toast.success('Password changed successfully');
+
         resetForm();
+
         setOpenDialog(false);
       } catch (error) {
-        if (error instanceof AxiosError && error.response?.data) {
-          toast.warning(error.response?.data.message);
-          return;
+        if (error instanceof AxiosError) {
+          toast.warning(
+            error.response?.data.message ??
+              'A server error occurred. Please try again later.',
+          );
+        } else {
+          toast.error('An unexpected error occurred.');
         }
-        toast.error('Failed changing password. Please try again later.');
+      } finally {
+        setSubmitting(false);
       }
-
-      setSubmitting(false);
     },
   });
 

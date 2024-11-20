@@ -25,7 +25,7 @@ export const RedirectExternal = () => {
     if (data) {
       setTimeout(() => {
         window.location.assign(data);
-      }, 3000);
+      }, 1000);
     }
   }, [data]);
 
@@ -42,14 +42,14 @@ export const RedirectExternal = () => {
     >
       {isLoading && (
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Getting Url...
+          {'Getting url... '}
           <CircularProgress />
         </Typography>
       )}
       {isError && (
         <>
           <Typography variant="h4" sx={{ fontWeight: 700 }}>
-            Url Not Found.
+            Url not found
           </Typography>
           <br></br>
           <Button variant="contained" onClick={() => navigate('/')}>
@@ -59,7 +59,7 @@ export const RedirectExternal = () => {
       )}
       {data && (
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
-          Url found. Redirecting...
+          {'Url found. Redirecting... '}
           <CircularProgress />
         </Typography>
       )}

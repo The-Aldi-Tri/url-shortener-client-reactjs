@@ -20,10 +20,10 @@ import { useAuthStore } from '../../stores/useAuthStore';
 import axiosInstance from '../../utils/axiosInstance';
 
 export const AuthLoginForm: React.FC = () => {
-  const [showPassword, setShowPassword] = React.useState(false);
-
-  const { setToken } = useAuthStore();
   const navigate = useNavigate();
+  const { setToken } = useAuthStore();
+
+  const [showPassword, setShowPassword] = React.useState(false);
 
   const loginFormik = useFormik({
     initialValues: {
@@ -33,17 +33,16 @@ export const AuthLoginForm: React.FC = () => {
     validationSchema: loginSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
+      const { usernameOrEmail, password } = values;
+
+      const identifier = usernameOrEmail.includes('@') ? 'email' : 'username';
+      const loginReqBody = {
+        [identifier]: usernameOrEmail,
+        password: password,
+      };
 
       try {
-        const identifier = values.usernameOrEmail.includes('@')
-          ? 'email'
-          : 'username';
-        const reqBody = {
-          [identifier]: values.usernameOrEmail,
-          password: values.password,
-        };
-
-        const { data } = await axiosInstance.post('/auth/login', reqBody);
+        const { data } = await axiosInstance.post('/auth/login', loginReqBody);
 
         setToken({
           accessToken: data.data['accessToken'],
@@ -51,19 +50,25 @@ export const AuthLoginForm: React.FC = () => {
         });
 
         toast.success('Login success');
-
         navigate('/');
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.response) {
-            toast.warning(error.response.data.message);
-            return;
-          }
-        }
-        toast.error('An unexpected error occurred.');
-      }
+          toast.warning(
+            error.response?.data.message ??
+              'A server error occurred. Please try again later.',
+          );
 
-      setSubmitting(false);
+          const { data } = await axiosInstance.post(`/users`, {
+            [identifier]: usernameOrEmail,
+          });
+
+          navigate(`/verify/${data.data._id}`);
+        } else {
+          toast.error('An unexpected error occurred.');
+        }
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 

@@ -5,6 +5,7 @@ import { useFormik } from 'formik';
 import React from 'react';
 import { toast } from 'react-toastify';
 import { urlSchema } from '../../schemas/urlSchema';
+import { useAuthStore } from '../../stores/useAuthStore';
 import axiosInstance from '../../utils/axiosInstance';
 
 type CreateUrl = {
@@ -17,11 +18,17 @@ const createUrl = async (values: CreateUrl): Promise<void> => {
 };
 
 export const UrlForm: React.FC = () => {
+  const { token } = useAuthStore();
   const queryClient = useQueryClient();
   const createUrlMutation = useMutation({
     mutationFn: (data: CreateUrl) => createUrl(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['urls'] });
+    },
+    onError: () => {
+      if (!token) {
+        toast.warning('Please sign up or log in to continue');
+      }
     },
   });
 
@@ -37,17 +44,19 @@ export const UrlForm: React.FC = () => {
       try {
         await createUrlMutation.mutateAsync(values);
 
-        toast.success('Create Url success');
+        toast.success('Create Url success.');
       } catch (error) {
-        if (error instanceof AxiosError && error.status === 409) {
-          toast.warning(error.response?.data.message);
-          return;
+        if (error instanceof AxiosError) {
+          toast.warning(
+            error.response?.data.message ??
+              'A server error occurred. Please try again later.',
+          );
+        } else {
+          toast.error('An unexpected error occurred.');
         }
-
-        toast.error('Create Url failed. Please try again later.');
+      } finally {
+        setSubmitting(false);
       }
-
-      setSubmitting(false);
     },
   });
 

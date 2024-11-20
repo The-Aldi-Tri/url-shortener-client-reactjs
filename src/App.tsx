@@ -8,25 +8,18 @@ import {
   Navigate,
   RouterProvider,
 } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { Slide, ToastContainer } from 'react-toastify';
 import { Auth } from './components/Auth/Auth';
 import { NotFound } from './components/NotFound';
 import { Profile } from './components/Profile/Profile';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import { RedirectExternal } from './components/RedirectExternal.tsx';
-import { Url } from './components/Url/Url.tsx';
-import { AppLayout } from './layout/AppLayout.tsx';
-import { useAuthStore } from './stores/useAuthStore.ts';
+import { RedirectExternal } from './components/RedirectExternal';
+import { Url } from './components/Url/Url';
+import { VerifyAccount } from './components/VerifyAccount/VerifyAccount';
+import { AppLayout } from './layout/AppLayout';
+import { useAuthStore } from './stores/useAuthStore';
 
 import 'react-toastify/dist/ReactToastify.css';
-
-const queryClient = new QueryClient();
-
-const theme = createTheme({
-  colorSchemes: {
-    dark: true,
-  },
-});
 
 const router = createBrowserRouter([
   {
@@ -58,12 +51,28 @@ const router = createBrowserRouter([
         element: <RedirectExternal />,
       },
       {
+        path: '/verify/:userId',
+        element: useAuthStore.getState().token ? (
+          <Navigate to="/" replace />
+        ) : (
+          <VerifyAccount />
+        ),
+      },
+      {
         path: '*',
         element: <NotFound />,
       },
     ],
   },
 ]);
+
+const queryClient = new QueryClient();
+
+const theme = createTheme({
+  colorSchemes: {
+    dark: true,
+  },
+});
 
 export const App: React.FC = () => {
   return (
@@ -73,7 +82,16 @@ export const App: React.FC = () => {
         <RouterProvider router={router} />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-      <ToastContainer position="top-center" theme="colored" />
+      <ToastContainer
+        position="top-center"
+        pauseOnFocusLoss={false}
+        pauseOnHover={false}
+        hideProgressBar={true}
+        autoClose={3000}
+        stacked
+        theme="colored"
+        transition={Slide}
+      />
     </ThemeProvider>
   );
 };

@@ -1,10 +1,20 @@
 import { Box, Button, ButtonGroup, Container, Paper } from '@mui/material';
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { AuthLoginForm } from './AuthLoginForm';
 import { AuthSignUpForm } from './AuthSignUpForm';
 
 export const Auth: React.FC = () => {
-  const [authType, setAuthType] = React.useState<'signUp' | 'login'>('signUp');
+  const { state } = useLocation();
+
+  let authState: 'signUp' | 'login';
+  if (state === 'login' || state === 'signUp') {
+    authState = state;
+  } else {
+    authState = 'signUp';
+  }
+
+  const [authType, setAuthType] = React.useState<'signUp' | 'login'>(authState);
 
   return (
     <Container

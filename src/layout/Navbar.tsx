@@ -10,6 +10,7 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import * as React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeMenu } from '../components/ThemeMenu';
@@ -18,6 +19,7 @@ import { useAuthStore } from '../stores/useAuthStore';
 export const Navbar: React.FC = () => {
   const { token, clearToken } = useAuthStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -50,6 +52,7 @@ export const Navbar: React.FC = () => {
           <MenuItem
             onClick={() => {
               clearToken();
+              queryClient.clear();
               handleClose();
               navigate('/');
             }}

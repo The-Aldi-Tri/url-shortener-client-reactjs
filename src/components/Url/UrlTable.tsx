@@ -7,6 +7,7 @@ import {
   GridRowSelectionModel,
 } from '@mui/x-data-grid';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import * as React from 'react';
 import { toast } from 'react-toastify';
 import { useAuthStore } from '../../stores/useAuthStore';
@@ -85,11 +86,17 @@ export function UrlTable() {
     if (rowSelectionModel.length === 0) return;
     try {
       await deleteMutation.mutateAsync([...rowSelectionModel]);
-      toast.success('Delete url(s) success');
+      toast.success('Delete url(s) success.');
       setRowSelectionModel([]);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      toast.error('Delete url(s) failed. Please try again later.');
+      if (error instanceof AxiosError) {
+        toast.warning(
+          error.response?.data.message ??
+            'A server error occurred. Please try again later.',
+        );
+      } else {
+        toast.error('An unexpected error occurred.');
+      }
     }
   };
 

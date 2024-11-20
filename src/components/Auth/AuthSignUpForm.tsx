@@ -16,11 +16,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { signUpSchema } from '../../schemas/signUpSchema';
-import { useAuthStore } from '../../stores/useAuthStore';
 import axiosInstance from '../../utils/axiosInstance';
 
 export const AuthSignUpForm: React.FC = () => {
-  const { setToken } = useAuthStore();
   const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = React.useState(false);
@@ -37,32 +35,36 @@ export const AuthSignUpForm: React.FC = () => {
       setSubmitting(true);
 
       try {
-        const { data: dataSignUp } = await axiosInstance.post(
-          '/auth/signup',
-          values,
-        );
+        const { data } = await axiosInstance.post('/auth/signup', values);
+
         toast.success('Sign up success');
-        const { data: dataLogin } = await axiosInstance.post('/auth/login', {
-          username: dataSignUp.data.username,
-          password: values.password,
-        });
-        setToken({
-          accessToken: dataLogin.data['accessToken'],
-          refreshToken: dataLogin.data['refreshToken'],
-        });
-        toast.success('Login success');
-        navigate('/');
+
+        await toast.promise(
+          axiosInstance.post(
+            '/mail/send',
+            { email: data.data.email, username: data.data.username },
+            { timeout: 10000 },
+          ),
+          {
+            pending: 'Sending mail...',
+            success: 'Mail sent',
+            error: 'An unexpected error occurred',
+          },
+        );
+
+        navigate(`/verify/${data.data._id}`);
       } catch (error) {
         if (error instanceof AxiosError) {
-          if (error.status === 409 && error.response) {
-            toast.warning(error.response.data.message);
-            return;
-          }
+          toast.warning(
+            error.response?.data.message ??
+              'A server error occurred. Please try again later.',
+          );
+        } else {
           toast.error('An unexpected error occurred.');
         }
+      } finally {
+        setSubmitting(false);
       }
-
-      setSubmitting(false);
     },
   });
 

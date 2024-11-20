@@ -13,6 +13,7 @@ type User = {
   username: string;
   createdAt: Date;
   updatedAt: Date;
+  is_verified: boolean;
 };
 
 const fetchUser = async (): Promise<User> => {
@@ -20,6 +21,7 @@ const fetchUser = async (): Promise<User> => {
   const user = data.data as Record<keyof User, string>;
   return {
     ...user,
+    is_verified: Boolean(user.is_verified),
     createdAt: new Date(user.createdAt),
     updatedAt: new Date(user.updatedAt),
   };
@@ -30,6 +32,7 @@ const updateUser = async (values: Partial<User>): Promise<User> => {
   const user = data.data as Record<keyof User, string>;
   return {
     ...user,
+    is_verified: Boolean(user.is_verified),
     createdAt: new Date(user.createdAt),
     updatedAt: new Date(user.updatedAt),
   };
@@ -71,14 +74,17 @@ export const ProfileUpdateForm: React.FC = () => {
 
           toast.success('Update user success.');
         } catch (error) {
-          if (error instanceof AxiosError && error.status === 409) {
-            toast.warning(error.response?.data.message);
-            return;
+          if (error instanceof AxiosError) {
+            toast.warning(
+              error.response?.data.message ??
+                'A server error occurred. Please try again later.',
+            );
+          } else {
+            toast.error('An unexpected error occurred.');
           }
-          toast.error('Update user failed. Please try again later.');
+        } finally {
+          setSubmitting(false);
         }
-
-        setSubmitting(false);
       }}
     >
       {({
@@ -133,6 +139,7 @@ export const ProfileUpdateForm: React.FC = () => {
             type="text"
             variant="outlined"
             required
+            disabled={true}
             sx={{ width: '75%' }}
             name="email"
             value={values.email}

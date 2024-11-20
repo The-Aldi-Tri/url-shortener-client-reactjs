@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor to attach token to headers
+// Request interceptor to attach token to the header
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
@@ -21,7 +21,7 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// Response interceptor to handle 401 error
+// Response interceptor to handle unauthorized error response (401)
 axiosInstance.interceptors.response.use(
   (response) => response, // Directly return successful responses.
   async (error) => {
