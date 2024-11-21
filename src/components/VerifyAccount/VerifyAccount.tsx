@@ -7,8 +7,8 @@ import { VerifyAccountForm } from './VerifyAccountForm';
 
 const fetchUserEmail = async (
   userId: string,
-): Promise<{ email: string; is_verified: boolean; username: string }> => {
-  const { data } = await axiosInstance.post(`/users`, { _id: userId });
+): Promise<{ userId: string; email: string; username: string }> => {
+  const { data } = await axiosInstance.post(`/users`, { userId });
   return data.data;
 };
 
@@ -44,11 +44,7 @@ export const VerifyAccount: React.FC = () => {
     >
       {isLoading && <CircularProgress />}
       {data && (
-        <VerifyAccountForm
-          email={data.email}
-          username={data.username}
-          id={userId!}
-        />
+        <VerifyAccountForm email={data.email} username={data.username} />
       )}
     </Container>
   );
