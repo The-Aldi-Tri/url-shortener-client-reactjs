@@ -20,6 +20,7 @@ import { AppLayout } from './layout/AppLayout';
 import { useAuthStore } from './stores/useAuthStore';
 
 import 'react-toastify/dist/ReactToastify.css';
+import { DirectVerify } from './components/DirectVerify';
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,14 @@ const router = createBrowserRouter([
       {
         path: '/urls/:shorten',
         element: <RedirectExternal />,
+      },
+      {
+        path: '/verify',
+        element: useAuthStore.getState().token ? (
+          <Navigate to="/" replace />
+        ) : (
+          <DirectVerify />
+        ),
       },
       {
         path: '/verify/:userId',
@@ -88,9 +97,9 @@ export const App: React.FC = () => {
         pauseOnHover={false}
         hideProgressBar={true}
         autoClose={3000}
-        stacked
         theme="colored"
         transition={Slide}
+        limit={3}
       />
     </ThemeProvider>
   );

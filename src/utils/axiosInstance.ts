@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { useAuthStore } from '../stores/useAuthStore';
 
@@ -48,6 +49,11 @@ axiosInstance.interceptors.response.use(
       } catch (error) {
         // Clear token if refresh failed
         useAuthStore.getState().clearToken();
+
+        // Clear query data and cache
+        const queryClient = useQueryClient();
+        queryClient.clear();
+
         return Promise.reject(error);
       }
     }

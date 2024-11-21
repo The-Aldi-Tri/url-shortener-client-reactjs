@@ -7,7 +7,7 @@ import { AuthSignUpForm } from './AuthSignUpForm';
 export const Auth: React.FC = () => {
   const { state } = useLocation();
 
-  let authState: 'signUp' | 'login';
+  let authState;
   if (state === 'login' || state === 'signUp') {
     authState = state;
   } else {

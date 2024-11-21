@@ -52,20 +52,22 @@ export const AuthLoginForm: React.FC = () => {
         toast.success('Login success');
         navigate('/');
       } catch (error) {
-        if (error instanceof AxiosError) {
-          toast.warning(
-            error.response?.data.message ??
-              'A server error occurred. Please try again later.',
-          );
-          if (error.response?.status === 403) {
-            const { data } = await axiosInstance.post(`/users`, {
-              [identifier]: usernameOrEmail,
-            });
-
-            navigate(`/verify/${data.data._id}`);
-          }
-        } else {
+        if (!(error instanceof AxiosError)) {
           toast.error('An unexpected error occurred.');
+          return;
+        }
+
+        toast.warning(
+          error.response?.data.message ??
+            'A server error occurred. Please try again later.',
+        );
+
+        if (error.response?.status === 403) {
+          const { data } = await axiosInstance.post(`/users`, {
+            [identifier]: usernameOrEmail,
+          });
+
+          navigate(`/verify/${data.data._id}`);
         }
       } finally {
         setSubmitting(false);

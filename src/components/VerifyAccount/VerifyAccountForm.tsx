@@ -56,14 +56,15 @@ export const VerifyAccountForm = ({
 
       navigate('/auth', { state: 'login' });
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.warning(
-          error.response?.data.message ??
-            'A server error occurred. Please try again later.',
-        );
-      } else {
+      if (!(error instanceof AxiosError)) {
         toast.error('An unexpected error occurred.');
+        return;
       }
+
+      toast.warning(
+        error.response?.data.message ??
+          'A server error occurred. Please try again later.',
+      );
     } finally {
       setLoading(false);
     }
@@ -77,16 +78,6 @@ export const VerifyAccountForm = ({
     const resendTimeout = Date.now() + 30000;
     setResendTimer(30);
 
-    // Call API to resend the OTP
-    await toast.promise(
-      axiosInstance.post('/mail/send', { email, username }, { timeout: 10000 }),
-      {
-        pending: 'Sending mail...',
-        success: 'Mail sent',
-        error: 'An unexpected error occurred',
-      },
-    );
-
     // Start the countdown for re-enabling the resend button
     const countdown = setInterval(() => {
       const timeLeft = resendTimeout - Date.now();
@@ -97,6 +88,16 @@ export const VerifyAccountForm = ({
         setResendTimer(Math.ceil(timeLeft / 1000)); // Update time left in seconds
       }
     }, 1000); // Update every second
+
+    // Call API to resend the OTP
+    await toast.promise(
+      axiosInstance.post('/mail/send', { email }, { timeout: 10000 }),
+      {
+        pending: 'Sending mail...',
+        success: 'Mail sent',
+        error: 'An unexpected error occurred',
+      },
+    );
   };
 
   return (

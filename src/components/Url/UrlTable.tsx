@@ -84,19 +84,21 @@ export function UrlTable() {
 
   const handleDelete = async () => {
     if (rowSelectionModel.length === 0) return;
+
     try {
       await deleteMutation.mutateAsync([...rowSelectionModel]);
       toast.success('Delete url(s) success.');
       setRowSelectionModel([]);
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.warning(
-          error.response?.data.message ??
-            'A server error occurred. Please try again later.',
-        );
-      } else {
+      if (!(error instanceof AxiosError)) {
         toast.error('An unexpected error occurred.');
+        return;
       }
+
+      toast.warning(
+        error.response?.data.message ??
+          'A server error occurred. Please try again later.',
+      );
     }
   };
 

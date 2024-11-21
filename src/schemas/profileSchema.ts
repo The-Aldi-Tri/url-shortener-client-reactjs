@@ -10,8 +10,4 @@ export const profileSchema = Yup.object().shape({
       'Must be alphanumeric and may contain hyphens and underscores',
     )
     .required('Username is required'),
-
-  email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
 });

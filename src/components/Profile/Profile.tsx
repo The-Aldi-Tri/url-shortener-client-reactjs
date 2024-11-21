@@ -1,4 +1,5 @@
 import { Box, Button, Container, Paper, Typography } from '@mui/material';
+import { useQueryClient } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { ProfileChangePasswordDialog } from './ProfileChangePasswordDIalog';
 import { ProfileUpdateForm } from './ProfileUpdateForm';
 
 export const Profile: React.FC = () => {
+  const queryClient = useQueryClient();
   const { clearToken } = useAuthStore();
 
   const navigate = useNavigate();
@@ -21,17 +23,19 @@ export const Profile: React.FC = () => {
       toast.success('User deleted successfully.');
 
       clearToken();
+      queryClient.clear();
 
       navigate('/auth');
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.warning(
-          error.response?.data.message ??
-            'A server error occurred. Please try again later.',
-        );
-      } else {
+      if (!(error instanceof AxiosError)) {
         toast.error('An unexpected error occurred.');
+        return;
       }
+
+      toast.warning(
+        error.response?.data.message ??
+          'A server error occurred. Please try again later.',
+      );
     }
   };
 

@@ -42,7 +42,7 @@ export const AuthSignUpForm: React.FC = () => {
         await toast.promise(
           axiosInstance.post(
             '/mail/send',
-            { email: data.data.email, username: data.data.username },
+            { email: data.data.email },
             { timeout: 10000 },
           ),
           {
@@ -54,14 +54,15 @@ export const AuthSignUpForm: React.FC = () => {
 
         navigate(`/verify/${data.data._id}`);
       } catch (error) {
-        if (error instanceof AxiosError) {
-          toast.warning(
-            error.response?.data.message ??
-              'A server error occurred. Please try again later.',
-          );
-        } else {
+        if (!(error instanceof AxiosError)) {
           toast.error('An unexpected error occurred.');
+          return;
         }
+
+        toast.warning(
+          error.response?.data.message ??
+            'A server error occurred. Please try again later.',
+        );
       } finally {
         setSubmitting(false);
       }

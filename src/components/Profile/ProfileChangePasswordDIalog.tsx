@@ -41,14 +41,15 @@ export const ProfileChangePasswordDialog: React.FC = () => {
 
         setOpenDialog(false);
       } catch (error) {
-        if (error instanceof AxiosError) {
-          toast.warning(
-            error.response?.data.message ??
-              'A server error occurred. Please try again later.',
-          );
-        } else {
+        if (!(error instanceof AxiosError)) {
           toast.error('An unexpected error occurred.');
+          return;
         }
+
+        toast.warning(
+          error.response?.data.message ??
+            'A server error occurred. Please try again later.',
+        );
       } finally {
         setSubmitting(false);
       }

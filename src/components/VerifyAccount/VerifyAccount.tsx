@@ -44,7 +44,11 @@ export const VerifyAccount: React.FC = () => {
     >
       {isLoading && <CircularProgress />}
       {data && (
-        <VerifyAccountForm email={data.email} username={data.username} />
+        <VerifyAccountForm
+          email={data.email}
+          username={data.username}
+          id={userId!}
+        />
       )}
     </Container>
   );

@@ -65,23 +65,24 @@ export const ProfileUpdateForm: React.FC = () => {
       }}
       validationSchema={profileSchema}
       onSubmit={async (values, { setSubmitting, resetForm }) => {
-        try {
-          setSubmitting(true);
+        setSubmitting(true);
 
+        try {
           await updateUserMutation.mutateAsync(values, {
             onSuccess: (data) => resetForm({ values: data }),
           });
 
           toast.success('Update user success.');
         } catch (error) {
-          if (error instanceof AxiosError) {
-            toast.warning(
-              error.response?.data.message ??
-                'A server error occurred. Please try again later.',
-            );
-          } else {
+          if (!(error instanceof AxiosError)) {
             toast.error('An unexpected error occurred.');
+            return;
           }
+
+          toast.warning(
+            error.response?.data.message ??
+              'A server error occurred. Please try again later.',
+          );
         } finally {
           setSubmitting(false);
         }
